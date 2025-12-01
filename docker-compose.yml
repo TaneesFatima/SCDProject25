@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:5
+    container_name: nodevault-mongo
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    volumes:
+      - nodevault-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: nodevault
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodevault-backend
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      MONGO_URI: "mongodb://nodevault-mongo:27017/nodevault"
+    depends_on:
+      - mongo
+    volumes:
+      - ./backups:/app/backups
+
+volumes:
+  nodevault-data:
